@@ -1,0 +1,163 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Globalization;
+
+namespace DominoLibrary
+{
+    public partial class userManagerForm : Form
+    {
+        public userManagerForm()
+        {
+            InitializeComponent();
+
+            dataGridView1.DataSource = DataManager.Users;
+
+        }
+
+        private void userManagerForm_Load(object sender, EventArgs e)
+        {
+            this.textBox1.Focus();
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            try
+            {
+                // 그리드의 셀이 선택되면 텍스트박스에 글자 지정
+                User user = dataGridView1.CurrentRow.DataBoundItem as User;
+                textBox1.Text = user.Id.ToString();
+                textBox2.Text = user.Name;
+            }
+            catch (Exception exception)
+            {
+            }
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.lblResult.Text = "";
+            // 추가 버튼
+            try
+            {
+                if (DataManager.Users.Exists((x) => x.Id == int.Parse(textBox1.Text)))
+                {
+                    MessageBox.Show("ID가 이미 사용중입니다.", "알림", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    if (this.textBox1.Text == "" || this.textBox2.Text == "" || this.textBox1.Text == null || this.textBox2.Text == null)
+                    {
+                        this.lblResult.Text = "* 빈 칸을 모두 입력해 주세요.";
+                    }
+                    else
+                    {
+                        User user = new User()
+                        {
+                            Id = int.Parse(textBox1.Text),
+                            Name = textBox2.Text
+                        };
+                        DataManager.Users.Add(user);
+                        dataGridView1.DataSource = null;
+                        dataGridView1.DataSource = DataManager.Users;
+                        DataManager.Save();
+
+                        this.lblResult.Text = "";
+                        this.textBox1.Text = "";
+                        this.textBox2.Text = "";
+                    }    
+                }
+            }
+            catch (Exception exception)
+            {
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            // 수정 버튼
+            try
+            {
+                User user = DataManager.Users.Single((x) => x.Id == int.Parse(textBox1.Text));
+                user.Name = textBox2.Text;
+                dataGridView1.DataSource = null;
+                dataGridView1.DataSource = DataManager.Users;
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show("존재하지 않는 사용자입니다", "알림", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            // 삭제 버튼
+            try
+            {
+                User user = DataManager.Users.Single((x) => x.Id == int.Parse(textBox1.Text));
+                DataManager.Users.Remove(user);
+                dataGridView1.DataSource = null;
+                dataGridView1.DataSource = DataManager.Users;
+                DataManager.Save();
+                this.textBox1.Text = "";
+                this.textBox2.Text = "";
+                this.lblResult.Text = "";
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show("존재하지 않는 사용자입니다", "알림", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // UserID에 숫자만 입력 가능하도록 작성
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            int i;
+
+            if (int.TryParse(textBox1.Text.Replace(",", ""), out i))
+            { 
+                this.lblResult.Text = "";
+                this.textBox1.Text = i.ToString();
+            }
+            else
+            {
+                this.textBox1.Text = "";
+                this.lblResult.Text = "* UserID는 숫자만 입력해 주세요";
+                this.textBox1.Focus();
+            }
+        }
+
+        // 이름 입력칸에 한글만 입력될 수 있도록 작성
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            char[] inputChar = this.textBox2.Text.ToCharArray();
+            var sb = new StringBuilder();
+
+            foreach(var item in inputChar)
+            {
+                if(char.GetUnicodeCategory(item) == UnicodeCategory.OtherLetter)
+                {
+                    sb.Append(item);
+                    this.lblResult.Text = "";
+                }
+                else
+                {
+                    this.textBox2.Text = "";
+                    this.textBox2.Focus();
+                    this.lblResult.Text = "* 이름은 한글로만 작성 가능합니다.";
+                }
+            }
+            this.textBox2.Text = sb.ToString().Trim();
+        }
+
+        private void userManagerForm_Shown(object sender, EventArgs e)
+        {
+            dataGridView1.CurrentCell = null;
+        }
+    }
+}

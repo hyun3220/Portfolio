@@ -89,7 +89,7 @@
   FirebaseConfig fdc = new FirebaseConfig
   {
       AuthSecret = "firebase password",
-      BasePath = "https://dominolibraryjoin-default-rtdb.firebaseio.com/"
+      BasePath = "firebase realtime database BasePath"
   };
   
   IFirebaseClient client;

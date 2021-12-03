@@ -88,7 +88,7 @@
   // Firebase 연동
   FirebaseConfig fdc = new FirebaseConfig
   {
-      AuthSecret = "tVFOq3eKA6ELM1KaGPUMbshm2rZxz0Ipuv4GpT68",
+      AuthSecret = "firebase password",
       BasePath = "https://dominolibraryjoin-default-rtdb.firebaseio.com/"
   };
   
